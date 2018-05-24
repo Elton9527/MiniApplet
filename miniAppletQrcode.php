@@ -29,6 +29,10 @@ public function getTokenAccess(){
 
 /**
  * FN:生成永久二维码
+ * 接口A 接口C $params = ['path' => 'XXX']
+ * 接口B $params = ['scene'=>'XXX',  'page' => 'XXX']
+ * A、B 参数是 path
+ * C 参数是 page
  */
 public function createMiniPermanentQrCode(){
     $token = $this->getTokenAccess();
@@ -37,10 +41,15 @@ public function createMiniPermanentQrCode(){
     $api = "https://api.weixin.qq.com/wxa/getwxacode?access_token={$token}";
     //生成小程序二维码 接口B：适用于需要的码数量极多的业务场景
     //$api = "https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token={$token}";
+    /**
+    $params = [
+        'scene' => urlencode($input['scene']),
+        'page' => 'pages/gongdilist/gongdilist',
+    ];
+    **/
     //生成小程序二维码 接口C：适用于需要的码数量较少的业务场景
     //$api = "https://api.weixin.qq.com/cgi-bin/wxaapp/createwxaqrcode?access_token={$token}";
     $params = [
-        //'scene' => $input['scene'],
         'path' => 'pages/XX/XX',
     ];
     $response_obj = $this->curl->post($api, json_encode($params));
