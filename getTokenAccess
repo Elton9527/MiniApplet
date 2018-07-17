@@ -1,0 +1,38 @@
+   /**
+     * 获取 access_token
+     * @param $appid
+     * @param $appsecret
+     * @return mixed
+     */
+    public function getTokenAccess($appletname = 'mini01', $appid, $appsecret){
+        $tokenfile = APPPATH."cache/{$appletname}_token.log";
+        $expire_time = 3600; // N 秒后过期 (一小时后)
+
+        if(file_exists($tokenfile)){
+            //$content = file($tokenfile);
+            $content = file_get_contents($tokenfile);
+            $token_arr = explode('{||--||}', trim($content));
+            $last_write_time = isset($token_arr[1])?$token_arr[1]:"";
+            $last_write_token = isset($token_arr[0])?$token_arr[0]:"";
+
+            if(time() - $last_write_time > $expire_time || !$last_write_token){
+                $url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={$appid}&secret={$appsecret}";
+                $response = $this->curlObj->get($url);
+                $result = json_decode($response -> body, true);
+                $access_token = $result["access_token"];
+                file_put_contents($tokenfile, $access_token."{||--||}".time());
+                //echo 'Old:'.$access_token;
+                return $access_token;
+            }
+            return $last_write_token;
+        }else{
+            // 如果文件不存在，那么需要生成token,并且记录到文件
+            $url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={$appid}&secret={$appsecret}";
+            $response = $this->curlObj->get($url);
+            $result = json_decode($response -> body, true);
+            $access_token = $result["access_token"];
+            file_put_contents($tokenfile, $access_token."{||--||}".time());
+            //echo 'New:'.$access_token;
+            return $access_token;
+        }
+    }
